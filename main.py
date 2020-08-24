@@ -14,13 +14,9 @@ def gowload_comic(id_comic):
         return file.write(response.content)
 
 
-if __name__ == "__main__":
-    load_dotenv()
-    chat_id = os.getenv('CHAT_ID')
-    access_token = os.getenv('ACCESS_TOKEN')
-    group_id = os.getenv('GROUP_ID')
-    gowload_comic(id_comic)
-    url_get = f'https://api.vk.com/method/photos.getWallUploadServer?group_id={group_id}&access_token={access_token}&v=5.122'
+def upload_photo_on_server(group_id, access_token):
+    url_get = ('https://api.vk.com/method/photos.getWallUploadServer?' +
+        f'group_id={group_id}&access_token={access_token}&v=5.122')
     response = requests.get(url_get)
     with open("comic614.jpg", 'rb') as file:
         upload_url = response.json()['response']['upload_url']
@@ -33,7 +29,16 @@ if __name__ == "__main__":
     server = decoded_response_upload['server']
     photo = decoded_response_upload['photo']
     hash = decoded_response_upload['hash']
-    print(hash)
+    return server, photo, hash
+
+
+if __name__ == "__main__":
+    load_dotenv()
+    chat_id = os.getenv('CHAT_ID')
+    access_token = os.getenv('ACCESS_TOKEN')
+    group_id = os.getenv('GROUP_ID')
+    gowload_comic(id_comic)
+    server, photo, hash = get_url_upload(group_id, access_token)
     url_get = f'https://api.vk.com/method/photos.saveWallPhoto?group_id=198114184&access_token={access_token}&v=5.122'
     response_uploadd = requests.post(url_get, params={
         "server": server,
