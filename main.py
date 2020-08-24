@@ -16,7 +16,7 @@ def gowload_comic(id_comic):
 
 def upload_photo_on_server(group_id, access_token):
     url_get = ('https://api.vk.com/method/photos.getWallUploadServer?' +
-        f'group_id={group_id}&access_token={access_token}&v=5.122')
+               f'group_id={group_id}&access_token={access_token}&v=5.122')
     response = requests.get(url_get)
     with open("comic614.jpg", 'rb') as file:
         upload_url = response.json()['response']['upload_url']
