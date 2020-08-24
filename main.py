@@ -37,7 +37,7 @@ if __name__ == "__main__":
     chat_id = os.getenv('CHAT_ID')
     access_token = os.getenv('ACCESS_TOKEN')
     group_id = os.getenv('GROUP_ID')
-    gowload_comic(id_comic)
+    gowload_comic(614)
     server, photo, hash = upload_photo_on_server(group_id, access_token)
     url_get = f'https://api.vk.com/method/photos.saveWallPhoto?group_id=198114184&access_token={access_token}&v=5.122'
     response_uploadd = requests.post(url_get, params={
@@ -45,4 +45,7 @@ if __name__ == "__main__":
         'photo': photo,
         'hash': hash
     })
-    print(response_uploadd.json())
+    id_pic = response_uploadd.json()['response'][0]['id']
+    owner_id = response_uploadd.json()['response'][0]['owner_id']
+    url_get = f'https://api.vk.com/method/wall.post?attachments=photo{owner_id}_{id_pic}&access_token={access_token}&v=5.122'
+    print(requests.post(url_get).text)
