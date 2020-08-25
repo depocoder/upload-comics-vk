@@ -15,15 +15,16 @@ def download_comic(id_comic):
     return decoded_response['safe_title']
 
 
-def upload_photo_on_server(group_id, access_token):
+def upload_photo_on_server(group_id, vk_token):
     url_get = ('https://api.vk.com/method/photos.getWallUploadServer?')
     response = requests.get(url_get, params={
         "group_id": group_id,
         'album_id': "272963239",
-        "access_token": access_token,
+        "access_token": vk_token,
         'v': '5.122'
     })
     with open("comic614.jpg", 'rb') as file:
+        print(response.json())
         upload_url = response.json()['response']['upload_url']
         files = {
             'photo': file,
@@ -39,12 +40,11 @@ def upload_photo_on_server(group_id, access_token):
 
 if __name__ == "__main__":
     load_dotenv()
-    chat_id = os.getenv('CHAT_ID')
-    access_token = os.getenv('ACCESS_TOKEN')
+    vk_token = os.getenv('VK_TOKEN')
     group_id = os.getenv('GROUP_ID')
     name_comic = download_comic(614)
-    server, photo, hash = upload_photo_on_server(group_id, access_token)
-    url_get = f'https://api.vk.com/method/photos.saveWallPhoto?group_id=198114184&access_token={access_token}&v=5.122'
+    server, photo, hash = upload_photo_on_server(group_id, vk_token)
+    url_get = f'https://api.vk.com/method/photos.saveWallPhoto?group_id=198114184&access_token={vk_token}&v=5.122'
     response_uploadd = requests.post(url_get, params={
         "server": server,
         'photo': photo,
@@ -52,5 +52,5 @@ if __name__ == "__main__":
     })
     id_pic = response_uploadd.json()['response'][0]['id']
     owner_id = response_uploadd.json()['response'][0]['owner_id']
-    url_get = f'https://api.vk.com/method/wall.post?attachments=photo{owner_id}_{id_pic}&access_token={access_token}&v=5.122'
-    #print(requests.post(url_get).text)
+    url_get = f'https://api.vk.com/method/wall.post?attachments=photo{owner_id}_{id_pic}&access_token={vk_token}&v=5.122'
+    print(requests.post(url_get).text)
