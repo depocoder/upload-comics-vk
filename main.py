@@ -15,17 +15,18 @@ def download_comic(id_comic):
     return decoded_response['safe_title']
 
 
-def upload_photo_on_server(group_id, vk_token):
+def get_upload_url(group_id, vk_token):
     url_get = ('https://api.vk.com/method/photos.getWallUploadServer?')
     response = requests.get(url_get, params={
         "group_id": group_id,
-        'album_id': "272963239",
         "access_token": vk_token,
         'v': '5.122'
     })
+    return response.json()['response']['upload_url']
+
+
+def upload_photo_on_server(group_id, vk_token, upload_url):
     with open("comic614.jpg", 'rb') as file:
-        print(response.json())
-        upload_url = response.json()['response']['upload_url']
         files = {
             'photo': file,
         }
@@ -43,14 +44,25 @@ if __name__ == "__main__":
     vk_token = os.getenv('VK_TOKEN')
     group_id = os.getenv('GROUP_ID')
     name_comic = download_comic(614)
-    server, photo, hash = upload_photo_on_server(group_id, vk_token)
-    url_get = f'https://api.vk.com/method/photos.saveWallPhoto?group_id=198114184&access_token={vk_token}&v=5.122'
+    upload_url = get_upload_url(group_id, vk_token)
+    server, photo, hash = upload_photo_on_server(group_id, vk_token, upload_url)
+    url_get = f'https://api.vk.com/method/photos.saveWallPhoto?'
     response_uploadd = requests.post(url_get, params={
         "server": server,
         'photo': photo,
-        'hash': hash
+        'hash': hash,
+        "group_id": group_id,
+        "access_token": vk_token,
+        'v': '5.122'
     })
     id_pic = response_uploadd.json()['response'][0]['id']
     owner_id = response_uploadd.json()['response'][0]['owner_id']
-    url_get = f'https://api.vk.com/method/wall.post?attachments=photo{owner_id}_{id_pic}&access_token={vk_token}&v=5.122'
-    print(requests.post(url_get).text)
+    print(owner_id)
+    url_get = f'https://api.vk.com/method/wall.post?'
+    response = requests.post(url_get, params={
+        "attachments": f"photo{owner_id}_{id_pic}",
+        "access_token": vk_token,
+        'v': '5.122'
+
+    })
+    print(response.text)
