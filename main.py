@@ -74,12 +74,13 @@ if __name__ == "__main__":
     load_dotenv()
     vk_token = os.getenv('VK_TOKEN')
     group_id = os.getenv('GROUP_ID')
+    upload_url = get_upload_url(group_id, vk_token)
     num_last_comic = get_comic_info('')['num']
     random_comic_id = randint(1, num_last_comic)
     download_comic(random_comic_id)
     comic_name = get_comic_info(random_comic_id)['safe_title']
-    upload_url = get_upload_url(group_id, vk_token)
-    decoded_response = save_wall_photo(group_id, vk_token, random_comic_id, upload_url)
+    decoded_response = save_wall_photo(
+        group_id, vk_token, random_comic_id, upload_url)
     post_wall(decoded_response, comic_name, vk_token, group_id)
     path = os.path.join(
         os.path.abspath(os.path.dirname(__file__)),
