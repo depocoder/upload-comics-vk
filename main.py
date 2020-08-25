@@ -1,4 +1,5 @@
 import os
+from random import randint
 import requests
 from dotenv import load_dotenv
 
@@ -41,16 +42,12 @@ def upload_photo_on_server(group_id, vk_token, upload_url, comic_id):
     return server, photo, hash
 
 
-if __name__ == "__main__":
-    load_dotenv()
-    vk_token = os.getenv('VK_TOKEN')
-    group_id = os.getenv('GROUP_ID')
-    comic_id = 615
-    comic_name = get_comic_info(comic_id)['safe_title']
+def save_wall_photo(group_id, vk_token, comic_id):
     upload_url = get_upload_url(group_id, vk_token)
-    server, photo, hash = upload_photo_on_server(group_id, vk_token, upload_url, comic_id)
-    url_get = f'https://api.vk.com/method/photos.saveWallPhoto?'
-    response_uploadd = requests.post(url_get, params={
+    server, photo, hash = upload_photo_on_server(
+        group_id, vk_token, upload_url, comic_id)
+    url = 'https://api.vk.com/method/photos.saveWallPhoto?'
+    response = requests.post(url, params={
         "server": server,
         'photo': photo,
         'hash': hash,
@@ -58,14 +55,35 @@ if __name__ == "__main__":
         "access_token": vk_token,
         'v': '5.122'
     })
-    id_pic = response_uploadd.json()['response'][0]['id']
-    owner_id = response_uploadd.json()['response'][0]['owner_id']
-    url_get = f'https://api.vk.com/method/wall.post?'
+    return response.json()
+
+
+def post_wall(decoded_response, comic_name, vk_token, group_id):
+    id_pic = decoded_response['response'][0]['id']
+    owner_id = decoded_response['response'][0]['owner_id']
+    url_get = 'https://api.vk.com/method/wall.post?'
     response = requests.post(url_get, params={
         "attachments": f"photo{owner_id}_{id_pic}",
         'owner_id': f'-{group_id}',
         "message": comic_name,
         "access_token": vk_token,
         'v': '5.122'
-
     })
+    return response
+
+
+if __name__ == "__main__":
+    load_dotenv()
+    vk_token = os.getenv('VK_TOKEN')
+    group_id = os.getenv('GROUP_ID')
+    num_last_comic = get_comic_info('')['num']
+    comic_id = randint(1, num_last_comic)
+    download_comic(comic_id)
+    comic_name = get_comic_info(comic_id)['safe_title']
+    decoded_response = save_wall_photo(group_id, vk_token, comic_id)
+    post_wall(decoded_response, comic_name, vk_token, group_id)
+    path = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        f'comic{comic_id}.jpg')
+    os.remove(path)
+    print(comic_id)
