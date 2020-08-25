@@ -33,17 +33,15 @@ def upload_photo_on_server(group_id, vk_token, upload_url, comic_id):
         files = {
             'photo': file,
         }
-        response_upload = requests.post(upload_url, files=files)
-        response_upload.raise_for_status()
-    decoded_response_upload = response_upload.json()
-    server = decoded_response_upload['server']
-    photo = decoded_response_upload['photo']
-    hash = decoded_response_upload['hash']
+        response = requests.post(upload_url, files=files)
+    decoded_response = response.json()
+    server = decoded_response['server']
+    photo = decoded_response['photo']
+    hash = decoded_response['hash']
     return server, photo, hash
 
 
-def save_wall_photo(group_id, vk_token, comic_id):
-    upload_url = get_upload_url(group_id, vk_token)
+def save_wall_photo(group_id, vk_token, comic_id, upload_url):
     server, photo, hash = upload_photo_on_server(
         group_id, vk_token, upload_url, comic_id)
     url = 'https://api.vk.com/method/photos.saveWallPhoto?'
@@ -77,13 +75,13 @@ if __name__ == "__main__":
     vk_token = os.getenv('VK_TOKEN')
     group_id = os.getenv('GROUP_ID')
     num_last_comic = get_comic_info('')['num']
-    comic_id = randint(1, num_last_comic)
-    download_comic(comic_id)
-    comic_name = get_comic_info(comic_id)['safe_title']
-    decoded_response = save_wall_photo(group_id, vk_token, comic_id)
+    random_comic_id = randint(1, num_last_comic)
+    download_comic(random_comic_id)
+    comic_name = get_comic_info(random_comic_id)['safe_title']
+    upload_url = get_upload_url(group_id, vk_token)
+    decoded_response = save_wall_photo(group_id, vk_token, random_comic_id, upload_url)
     post_wall(decoded_response, comic_name, vk_token, group_id)
     path = os.path.join(
         os.path.abspath(os.path.dirname(__file__)),
-        f'comic{comic_id}.jpg')
+        f'comic{random_comic_id}.jpg')
     os.remove(path)
-    print(comic_id)
