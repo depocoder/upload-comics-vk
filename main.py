@@ -56,9 +56,7 @@ def save_wall_photo(group_id, vk_token, comic_id, upload_url):
     return response.json()
 
 
-def post_wall(decoded_response, comic_name, vk_token, group_id):
-    id_pic = decoded_response['response'][0]['id']
-    owner_id = decoded_response['response'][0]['owner_id']
+def post_wall(id_pic, owner_id, comic_name, vk_token, group_id):
     url_get = 'https://api.vk.com/method/wall.post?'
     response = requests.post(url_get, params={
         "attachments": f"photo{owner_id}_{id_pic}",
@@ -82,7 +80,9 @@ if __name__ == "__main__":
     comic_name = comic_info['safe_title']
     decoded_response = save_wall_photo(
         group_id, vk_token, random_comic_id, upload_url)
-    post_wall(decoded_response, comic_name, vk_token, group_id)
+    id_pic = decoded_response['response'][0]['id']
+    owner_id = decoded_response['response'][0]['owner_id']
+    post_wall(id_pic, owner_id, comic_name, vk_token, group_id)
     path = os.path.join(
         os.path.abspath(os.path.dirname(__file__)),
         f'comic{random_comic_id}.jpg')
