@@ -34,12 +34,6 @@ VK_TOKEN=f26e2dca0a2f77894e6e292289i48c88d4339f084b302457a562a3b11d3ec56b01bd15d
 GROUP_ID=195114184
 ```
 
-# Аргументы.
-**example** — etc..
-
-```
-python3 main.py ..
-```
 ## Запуск кода.  
 ```
 python3 main.py
