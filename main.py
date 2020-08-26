@@ -10,8 +10,8 @@ def get_comic_info(comic_id):
     return response.json()
 
 
-def download_comic(comic_id):
-    url_comic = get_comic_info(comic_id)['img']
+def download_comic(comic_id, comic_info):
+    url_comic = comic_info['img']
     download_response = requests.get(url_comic)
     filename = f'comic{comic_id}.jpg'
     with open(filename, 'wb') as file:
@@ -25,7 +25,6 @@ def get_upload_url(group_id, vk_token):
         "access_token": vk_token,
         'v': '5.122'
     })
-    print(response.text)
     return response.json()['response']['upload_url']
 
 
@@ -78,8 +77,9 @@ if __name__ == "__main__":
     upload_url = get_upload_url(group_id, vk_token)
     num_last_comic = get_comic_info('')['num']
     random_comic_id = randint(1, num_last_comic)
-    download_comic(random_comic_id)
-    comic_name = get_comic_info(random_comic_id)['safe_title']
+    comic_info = get_comic_info(random_comic_id)
+    download_comic(random_comic_id, comic_info)
+    comic_name = comic_info['safe_title']
     decoded_response = save_wall_photo(
         group_id, vk_token, random_comic_id, upload_url)
     post_wall(decoded_response, comic_name, vk_token, group_id)
