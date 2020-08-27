@@ -27,7 +27,7 @@ def get_upload_url(group_id, vk_token):
         "access_token": vk_token,
         'v': '5.122'
     })
-    return response.json()['response']['upload_url']
+    return response.json()
 
 
 def upload_photo_on_server(group_id, vk_token, upload_url, comic_id):
@@ -67,7 +67,15 @@ def post_wall(id_pic, owner_id, comic_name, vk_token, group_id):
         "access_token": vk_token,
         'v': '5.122'
     })
-    return response
+    return response.json()
+
+
+def delete_comic(random_comic_id):
+    if os.path.exists(f'comic{random_comic_id}.jpg'):
+        path = os.path.join(
+            os.path.abspath(os.path.dirname(__file__)),
+            f'comic{random_comic_id}.jpg')
+        os.remove(path)
 
 
 if __name__ == "__main__":
@@ -83,16 +91,25 @@ if __name__ == "__main__":
         comic_name = comic_info['safe_title']
     except requests.exceptions.HTTPError:
         sys.exit('Ошибка скачивания комикса.')
-    finally:
-        if os.path.exists('comic{random_comic_id}.jpg'):
-            path = os.path.join(
-                os.path.abspath(os.path.dirname(__file__)),
-            f'comic{random_comic_id}.jpg')
-            os.remove(path)
-    upload_url = get_upload_url(group_id, vk_token)
+        delete_comic(random_comic_id)
+    upload_info = get_upload_url(group_id, vk_token)
+    if 'error' in upload_info:
+        delete_comic(random_comic_id)
+        sys.exit('Ошибка получения ссылки для загрузки, ' +
+                 'проверьте подключение к интернету или ваш .env файл')
+    upload_url = upload_info['response']['upload_url']
     decoded_response = save_wall_photo(
         group_id, vk_token, random_comic_id, upload_url)
+    if 'error' in decoded_response:
+        delete_comic(random_comic_id)
+        sys.exit('Ошибка загрузки на сервер, ' +
+                 'проверьте подключение к интернету или ваш .env файл')
     id_pic = decoded_response['response'][0]['id']
     owner_id = decoded_response['response'][0]['owner_id']
-    post_wall(id_pic, owner_id, comic_name, vk_token, group_id)
-    
+    post_wall_info = post_wall(id_pic, owner_id,
+                               comic_name, vk_token, group_id)
+    if 'error' in post_wall_info:
+        delete_comic(random_comic_id)
+        sys.exit('Ошибка публикации на сервер, ' +
+                 'проверьте подключение к интернету или ваш .env файл')
+    delete_comic(random_comic_id)
