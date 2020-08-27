@@ -1,5 +1,4 @@
 import os
-import sys
 from random import randint
 import requests
 from dotenv import load_dotenv
@@ -88,7 +87,8 @@ if __name__ == "__main__":
         url_comic = comic_info['img']
         download_comic(random_comic_id, url_comic)
         comic_name = comic_info['safe_title']
-        upload_url = get_upload_url(group_id, vk_token)['response']['upload_url']
+        upload_url = get_upload_url(
+            group_id, vk_token)['response']['upload_url']
         decoded_response = save_wall_photo(
             group_id, vk_token, random_comic_id, upload_url)
         id_pic = decoded_response['response'][0]['id']
@@ -96,8 +96,9 @@ if __name__ == "__main__":
         post_wall(id_pic, owner_id,
                   comic_name, vk_token, group_id)
     except requests.exceptions.HTTPError:
-        sys.exit('Ошибка! Проверьте ваши данные в .env и подключение к интернету.')
-    finally: 
+        print('Ошибка! Проверьте ваши данные в' +
+              ' .env и подключение к интернету.')
+    finally:
         if os.path.exists(f'comic{random_comic_id}.jpg'):
             path = os.path.join(
                 os.path.abspath(os.path.dirname(__file__)),
