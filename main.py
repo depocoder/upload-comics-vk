@@ -83,13 +83,16 @@ if __name__ == "__main__":
         comic_name = comic_info['safe_title']
     except requests.exceptions.HTTPError:
         sys.exit('Ошибка скачивания комикса.')
+    finally:
+        if os.path.exists('comic{random_comic_id}.jpg'):
+            path = os.path.join(
+                os.path.abspath(os.path.dirname(__file__)),
+            f'comic{random_comic_id}.jpg')
+            os.remove(path)
     upload_url = get_upload_url(group_id, vk_token)
     decoded_response = save_wall_photo(
         group_id, vk_token, random_comic_id, upload_url)
     id_pic = decoded_response['response'][0]['id']
     owner_id = decoded_response['response'][0]['owner_id']
     post_wall(id_pic, owner_id, comic_name, vk_token, group_id)
-    path = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)),
-        f'comic{random_comic_id}.jpg')
-    os.remove(path)
+    
