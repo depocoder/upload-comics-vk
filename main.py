@@ -26,7 +26,9 @@ def get_upload_url(group_id, vk_token):
         "access_token": vk_token,
         'v': '5.122'
     })
-    return check_error(response)
+    decoded_response = response.json()
+    check_error(decoded_response)
+    return decoded_response
 
 
 def upload_photo_on_server(group_id, vk_token, upload_url, comic_id):
@@ -54,7 +56,9 @@ def save_wall_photo(group_id, vk_token, comic_id, upload_url):
         "access_token": vk_token,
         'v': '5.122'
     })
-    return check_error(response)
+    decoded_response = response.json()
+    check_error(decoded_response)
+    return decoded_response
 
 
 def post_wall(id_pic, owner_id, comic_name, vk_token, group_id):
@@ -66,14 +70,14 @@ def post_wall(id_pic, owner_id, comic_name, vk_token, group_id):
         "access_token": vk_token,
         'v': '5.122'
     })
-    return check_error(response)
-
-
-def check_error(response):
     decoded_response = response.json()
+    check_error(decoded_response)
+    return decoded_response
+
+
+def check_error(decoded_response):
     if 'error' in decoded_response:
         raise requests.exceptions.HTTPError(decoded_response['error'])
-    return decoded_response
 
 
 if __name__ == "__main__":
