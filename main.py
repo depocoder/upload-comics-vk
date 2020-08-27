@@ -103,4 +103,4 @@ if __name__ == "__main__":
             path = os.path.join(
                 os.path.abspath(os.path.dirname(__file__)),
                 f'comic{random_comic_id}.jpg')
-        os.remove(path)
+            os.remove(path)
